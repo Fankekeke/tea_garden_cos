@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.cos.dao.TeaProductsMapper">
+
+    <!-- 分页查询茶叶品种信息 -->
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+        id,
+        NAME,
+        variety,
+        description,
+        created_at,
+        images
+        FROM
+        tea_products
+        WHERE
+        1 = 1
+        <if test="teaProducts.name != null and teaProducts.name != ''">
+            AND name LIKE CONCAT('%',#{teaProducts.name},'%')
+        </if>
+        <if test="teaProducts.variety != null and teaProducts.variety != ''">
+            AND variety LIKE CONCAT('%',#{teaProducts.variety},'%')
+        </if>
+        ORDER BY
+        created_at DESC
+    </select>
+</mapper>

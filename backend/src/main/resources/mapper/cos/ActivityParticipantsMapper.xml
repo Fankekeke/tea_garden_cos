@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.cos.dao.ActivityParticipantsMapper">
+
+    <!-- 分页查询活动报名信息 -->
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+        ap.id,
+        ap.activity_id,
+        ap.join_time,
+
+        act.title,
+        act.content,
+        act.event_time,
+        act.finish_time,
+        act.publisher,
+        act.created_at,
+
+        ui.NAME,
+        ui.CODE,
+        ui.sex,
+        ui.images
+        FROM
+        activity_participants ap
+        LEFT JOIN activityParticipants act ON (act.id = ap.activity_id)
+        LEFT JOIN user_info ui ON (ui.id = ap.user_id)
+        WHERE
+        1 = 1
+        <if test="activityParticipants.title != null and activityParticipants.title != ''">
+            AND act.title LIKE CONCAT('%',#{activityParticipants.title},'%')
+        </if>
+        <if test="activityParticipants.publisher != null and activityParticipants.publisher != ''">
+            AND act.publisher LIKE CONCAT('%',#{activityParticipants.publisher},'%')
+        </if>
+        <if test="activityParticipants.name != null and activityParticipants.name != ''">
+            AND ui.NAME LIKE CONCAT('%',#{activityParticipants.name},'%')
+        </if>
+        ORDER BY
+        created_at DESC
+    </select>
+</mapper>

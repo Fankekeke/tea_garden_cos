@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.mrbird.febs.cos.dao.StoriesMapper">
+
+    <!-- 分页查询茶农故事信息 -->
+    <select id="queryPage" resultType="java.util.LinkedHashMap">
+        SELECT
+        st.id,
+        st.user_id,
+        st.title,
+        st.content,
+        st.STATUS,
+        st.audit_remark,
+        st.created_at,
+        ui.NAME,
+        ui.CODE,
+        ui.sex,
+        ui.images
+        FROM
+        stories st
+        LEFT JOIN user_info ui ON (ui.id = st.user_id)
+        WHERE
+        1 = 1
+        <if test="stories.title != null and stories.title != ''">
+            AND st.title LIKE CONCAT('%',#{stories.title},'%')
+        </if>
+        <if test="stories.status != null and stories.status != ''">
+            AND st.STATUS = #{stories.status}
+        </if>
+        <if test="stories.name != null and stories.name != ''">
+            AND ui.name LIKE CONCAT('%',#{stories.name},'%')
+        </if>
+        ORDER BY
+        st.created_at DESC
+    </select>
+</mapper>
