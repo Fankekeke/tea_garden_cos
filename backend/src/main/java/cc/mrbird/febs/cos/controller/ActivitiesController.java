@@ -1,6 +1,7 @@
 package cc.mrbird.febs.cos.controller;
 
 
+import cc.mrbird.febs.common.exception.FebsException;
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.Activities;
 import cc.mrbird.febs.cos.service.IActivitiesService;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +55,13 @@ public class ActivitiesController {
      * @return 结果
      */
     @PostMapping
-    public R save(Activities activities) {
+    public R save(Activities activities) throws FebsException {
+        LocalDateTime eventTime = LocalDateTime.parse(activities.getEventTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime finishTime = LocalDateTime.parse(activities.getFinishTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        if (eventTime.isAfter(finishTime)) {
+            throw new FebsException("活动结束时间不能早于开始时间");
+        }
         activities.setCreatedAt(DateUtil.formatDateTime(new Date()));
         return R.ok(activitiesService.save(activities));
     }

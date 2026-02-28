@@ -5,6 +5,7 @@ import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.TeaRecords;
 import cc.mrbird.febs.cos.service.ITeaRecordsService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,17 @@ public class TeaRecordsController {
     @GetMapping("/list")
     public R list() {
         return R.ok(teaRecordsService.list());
+    }
+
+    /**
+     * 根据产品ID查询种植记录信息
+     *
+     * @param productId 产品ID
+     * @return 结果
+     */
+    @GetMapping("/queryRecordByProductId")
+    public R queryRecordByProductId(Integer productId) {
+        return R.ok(teaRecordsService.list(Wrappers.<TeaRecords>lambdaQuery().eq(TeaRecords::getTeaId, productId)));
     }
 
     /**

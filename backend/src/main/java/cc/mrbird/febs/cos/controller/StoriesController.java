@@ -5,6 +5,7 @@ import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.Stories;
 import cc.mrbird.febs.cos.service.IStoriesService;
 import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,16 @@ public class StoriesController {
     @GetMapping("/list")
     public R list() {
         return R.ok(storiesService.list());
+    }
+
+    /**
+     * 查询所有审核通过茶农故事信息
+     *
+     * @return 列表
+     */
+    @GetMapping("/queryListApproved")
+    public R queryListApproved() {
+        return R.ok(storiesService.list(Wrappers.<Stories>lambdaQuery().eq(Stories::getStatus, "通过")));
     }
 
     /**
