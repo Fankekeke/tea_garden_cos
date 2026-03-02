@@ -7,7 +7,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="标题"
+                label="活动标题"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.title"/>
@@ -15,10 +15,10 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="内容"
+                label="发布人"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.content"/>
+                <a-input v-model="queryParams.publisher"/>
               </a-form-item>
             </a-col>
           </div>
@@ -65,6 +65,38 @@
           </template>
         </template>
         <template slot="operation" slot-scope="text, record">
+          <template slot="titleShow" slot-scope="text, record">
+            <template>
+              <a-tooltip>
+                <template slot="title">
+                  {{ record.title }}
+                </template>
+                {{ record.title.slice(0, 8) }} ...
+              </a-tooltip>
+            </template>
+          </template>
+          <template slot="contentShow" slot-scope="text, record">
+            <template>
+              <a-tooltip>
+                <template slot="title">
+                  {{ record.content }}
+                </template>
+                {{ record.content.slice(0, 30) }} ...
+              </a-tooltip>
+            </template>
+          </template>
+          <template slot="eventTime" slot-scope="text, record">
+            <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm') : '--' }}</span>
+          </template>
+          <template slot="finishTime" slot-scope="text, record">
+            <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm') : '--' }}</span>
+          </template>
+          <template slot="publisher" slot-scope="text, record">
+            <span>{{ text || '--' }}</span>
+          </template>
+          <template slot="createdAt" slot-scope="text, record">
+            <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '--' }}</span>
+          </template>
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
         </template>
       </a-table>
@@ -128,39 +160,40 @@ export default {
     }),
     columns () {
       return [{
-        title: '标题',
+        title: '互动标题',
         dataIndex: 'title',
         scopedSlots: { customRender: 'titleShow' },
-        width: 300
+        width: 200
       }, {
         title: '茶园活动内容',
         dataIndex: 'content',
         scopedSlots: { customRender: 'contentShow' },
-        width: 600
+        width: 300
       }, {
-        title: '发布时间',
-        dataIndex: 'createDate',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
+        title: '活动时间',
+        dataIndex: 'eventTime',
+        scopedSlots: { customRender: 'eventTime' },
+        width: 150
       }, {
-        title: '上传人',
-        dataIndex: 'uploader',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
+        title: '结束时间',
+        dataIndex: 'finishTime',
+        scopedSlots: { customRender: 'finishTime' },
+        width: 150
+      }, {
+        title: '发布人',
+        dataIndex: 'publisher',
+        scopedSlots: { customRender: 'publisher' },
+        width: 120
+      }, {
+        title: '创建时间',
+        dataIndex: 'createdAt',
+        scopedSlots: { customRender: 'createdAt' },
+        width: 160
       }, {
         title: '操作',
         dataIndex: 'operation',
-        scopedSlots: {customRender: 'operation'}
+        scopedSlots: {customRender: 'operation'},
+        width: 80
       }]
     }
   },

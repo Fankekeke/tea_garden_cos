@@ -11,26 +11,52 @@
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
         <a-col :span="12">
-          <a-form-item label='茶园活动标题' v-bind="formItemLayout">
+          <a-form-item label='活动主题' v-bind="formItemLayout">
             <a-input v-decorator="[
             'title',
-            { rules: [{ required: true, message: '请输入名称!' }] }
+            { rules: [{ required: true, message: '请输入活动主题!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='上传人' v-bind="formItemLayout">
+          <a-form-item label='发布人' v-bind="formItemLayout">
             <a-input v-decorator="[
-            'uploader',
-            { rules: [{ required: true, message: '请输入上传人!' }] }
+            'publisher',
+            { rules: [{ required: true, message: '请输入发布人!' }] }
             ]"/>
           </a-form-item>
         </a-col>
+        <a-col :span="12">
+          <a-form-item label='活动举办时间' v-bind="formItemLayout">
+            <a-date-picker
+              v-decorator="[
+                'eventTime',
+                { rules: [{ required: true, message: '请选择活动举办时间!' }] }
+              ]"
+              show-time
+              format="YYYY-MM-DD HH:mm"
+              placeholder="请选择活动举办时间"              style="width: 100%"
+            />
+          </a-form-item>
+        </a-col>
+        <a-col :span="12">
+          <a-form-item label='活动结束时间' v-bind="formItemLayout">
+            <a-date-picker
+              v-decorator="[
+                'finishTime',
+                { rules: [{ required: true, message: '请选择活动结束时间!' }] }
+              ]"
+              show-time
+              format="YYYY-MM-DD HH:mm"
+              placeholder="请选择活动结束时间"              style="width: 100%"
+            />
+          </a-form-item>
+        </a-col>
         <a-col :span="24">
-          <a-form-item label='茶园活动内容' v-bind="formItemLayout">
+          <a-form-item label='活动详情' v-bind="formItemLayout">
             <a-textarea :rows="6" v-decorator="[
             'content',
-             { rules: [{ required: true, message: '请输入名称!' }] }
+             { rules: [{ required: true, message: '请输入活动详情!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -41,6 +67,7 @@
 
 <script>
 import {mapState} from 'vuex'
+import moment from 'moment'
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -108,12 +135,15 @@ export default {
     },
     setFormValues ({...bulletin}) {
       this.rowId = bulletin.id
-      let fields = ['title', 'content', 'uploader']
+      let fields = ['title', 'content', 'publisher', 'eventTime', 'finishTime']
       let obj = {}
       Object.keys(bulletin).forEach((key) => {
         if (key === 'images') {
           this.fileList = []
           this.imagesInit(bulletin['images'])
+        }
+        if (key === 'eventTime') {
+          bulletin['eventTime'] = moment(bulletin['eventTime'])
         }
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
@@ -145,6 +175,12 @@ export default {
         values.images = images.length > 0 ? images.join(',') : null
         if (!err) {
           this.loading = true
+          if (values.eventTime) {
+            values.eventTime = moment(values.eventTime).format('YYYY-MM-DD HH:mm:ss')
+          }
+          if (values.finishTime) {
+            values.finishTime = moment(values.finishTime).format('YYYY-MM-DD HH:mm:ss')
+          }
           this.$put('/cos/activities', {
             ...values
           }).then((r) => {

@@ -1,3 +1,4 @@
+
 <template>
   <a-card :bordered="false" class="card-area">
     <div :class="advanced ? 'search' : null">
@@ -7,7 +8,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="标题"
+                label="活动标题"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.title"/>
@@ -15,10 +16,18 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="内容"
+                label="发布人"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.content"/>
+                <a-input v-model="queryParams.publisher"/>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="参与者姓名"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.name"/>
               </a-form-item>
             </a-col>
           </div>
@@ -42,7 +51,7 @@
                :pagination="pagination"
                :loading="loading"
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-               :scroll="{ x: 900 }"
+               :scroll="{ x: 1200 }"
                @change="handleTableChange">
         <template slot="titleShow" slot-scope="text, record">
           <template>
@@ -61,6 +70,16 @@
                 {{ record.content }}
               </template>
               {{ record.content.slice(0, 30) }} ...
+            </a-tooltip>
+          </template>
+        </template>
+        <template slot="userNameShow" slot-scope="text, record">
+          <template>
+            <a-tooltip>
+              <template slot="title">
+                {{ record.userName }}
+              </template>
+              {{ record.userName }}
             </a-tooltip>
           </template>
         </template>
@@ -93,7 +112,7 @@ import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  name: 'Bulletin',
+  name: 'Participants',
   components: {BulletinAdd, BulletinEdit, RangeDate},
   data () {
     return {
@@ -128,39 +147,87 @@ export default {
     }),
     columns () {
       return [{
-        title: '标题',
+        title: '活动标题',
         dataIndex: 'title',
         scopedSlots: { customRender: 'titleShow' },
-        width: 300
+        width: 200
       }, {
-        title: '活动报名内容',
-        dataIndex: 'content',
-        scopedSlots: { customRender: 'contentShow' },
-        width: 600
-      }, {
-        title: '发布时间',
-        dataIndex: 'createDate',
+        title: '活动开始时间',
+        dataIndex: 'eventTime',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
           } else {
             return '- -'
           }
-        }
+        },
+        width: 150
       }, {
-        title: '上传人',
-        dataIndex: 'uploader',
+        title: '活动结束时间',
+        dataIndex: 'finishTime',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
           } else {
             return '- -'
           }
+        },
+        width: 150
+      }, {
+        title: '参与者姓名',
+        dataIndex: 'userName',
+        scopedSlots: { customRender: 'userNameShow' },
+        width: 120
+      }, {
+        title: '头像',
+        dataIndex: 'userImages',
+        customRender: (text, record, index) => {
+          if (!record.userImages) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages } />
+          </a-popover>
         }
+      }, {
+        title: '参与者编号',
+        dataIndex: 'userCode',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        },
+        width: 120
+      }, {
+        title: '性别',
+        dataIndex: 'sex',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text === '1' ? '男' : '女'
+          } else {
+            return '- -'
+          }
+        },
+        width: 80
+      }, {
+        title: '报名时间',
+        dataIndex: 'joinTime',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        },
+        width: 150
       }, {
         title: '操作',
         dataIndex: 'operation',
-        scopedSlots: {customRender: 'operation'}
+        scopedSlots: {customRender: 'operation'},
+        width: 80
       }]
     }
   },

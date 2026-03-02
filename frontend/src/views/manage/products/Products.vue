@@ -1,3 +1,4 @@
+
 <template>
   <a-card :bordered="false" class="card-area">
     <div :class="advanced ? 'search' : null">
@@ -7,18 +8,18 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="标题"
+                label="茶叶名称"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.title"/>
+                <a-input v-model="queryParams.name"/>
               </a-form-item>
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="内容"
+                label="茶叶品种"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.content"/>
+                <a-input v-model="queryParams.variety"/>
               </a-form-item>
             </a-col>
           </div>
@@ -42,25 +43,35 @@
                :pagination="pagination"
                :loading="loading"
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-               :scroll="{ x: 900 }"
+               :scroll="{ x: 1000 }"
                @change="handleTableChange">
-        <template slot="titleShow" slot-scope="text, record">
+        <template slot="nameShow" slot-scope="text, record">
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.title }}
+                {{ record.name }}
               </template>
-              {{ record.title.slice(0, 8) }} ...
+              {{ record.name.slice(0, 10) }} ...
             </a-tooltip>
           </template>
         </template>
-        <template slot="contentShow" slot-scope="text, record">
+        <template slot="varietyShow" slot-scope="text, record">
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.content }}
+                {{ record.variety }}
               </template>
-              {{ record.content.slice(0, 30) }} ...
+              {{ record.variety.slice(0, 15) }} ...
+            </a-tooltip>
+          </template>
+        </template>
+        <template slot="descriptionShow" slot-scope="text, record">
+          <template>
+            <a-tooltip>
+              <template slot="title">
+                {{ record.description }}
+              </template>
+              {{ record.description.slice(0, 20) }} ...
             </a-tooltip>
           </template>
         </template>
@@ -69,39 +80,38 @@
         </template>
       </a-table>
     </div>
-    <bulletin-add
-      v-if="bulletinAdd.visiable"
-      @close="handleBulletinAddClose"
-      @success="handleBulletinAddSuccess"
-      :bulletinAddVisiable="bulletinAdd.visiable">
-    </bulletin-add>
-    <bulletin-edit
-      ref="bulletinEdit"
-      @close="handleBulletinEditClose"
-      @success="handleBulletinEditSuccess"
-      :bulletinEditVisiable="bulletinEdit.visiable">
-    </bulletin-edit>
+    <products-add
+      v-if="productsAdd.visiable"
+      @close="handleProductsAddClose"
+      @success="handleProductsAddSuccess"
+      :productsAddVisiable="productsAdd.visiable">
+    </products-add>
+    <products-edit
+      ref="productsEdit"
+      @close="handleProductsEditClose"
+      @success="handleProductsEditSuccess"
+      :productsEditVisiable="productsEdit.visiable">
+    </products-edit>
   </a-card>
 </template>
 
-<script>
-import RangeDate from '@/components/datetime/RangeDate'
-import BulletinAdd from './ProductsAdd.vue'
-import BulletinEdit from './ProductsEdit.vue'
+<script>import RangeDate from '@/components/datetime/RangeDate'
+import ProductsAdd from './ProductsAdd.vue'
+import ProductsEdit from './ProductsEdit.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  name: 'Bulletin',
-  components: {BulletinAdd, BulletinEdit, RangeDate},
+  name: 'Products',
+  components: {ProductsAdd, ProductsEdit, RangeDate},
   data () {
     return {
       advanced: false,
-      bulletinAdd: {
+      productsAdd: {
         visiable: false
       },
-      bulletinEdit: {
+      productsEdit: {
         visiable: false
       },
       queryParams: {},
@@ -128,39 +138,47 @@ export default {
     }),
     columns () {
       return [{
-        title: '标题',
-        dataIndex: 'title',
-        scopedSlots: { customRender: 'titleShow' },
-        width: 300
+        title: '茶叶名称',
+        dataIndex: 'name',
+        scopedSlots: { customRender: 'nameShow' },
+        width: 150
       }, {
-        title: '茶叶品种内容',
-        dataIndex: 'content',
-        scopedSlots: { customRender: 'contentShow' },
-        width: 600
+        title: '茶叶品种',
+        dataIndex: 'variety',
+        scopedSlots: { customRender: 'varietyShow' },
+        width: 150
       }, {
-        title: '发布时间',
-        dataIndex: 'createDate',
+        title: '描述',
+        dataIndex: 'description',
+        scopedSlots: { customRender: 'descriptionShow' },
+        width: 250
+      }, {
+        title: '创建时间',
+        dataIndex: 'createdAt',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
           } else {
             return '- -'
           }
-        }
+        },
+        width: 150
       }, {
-        title: '上传人',
-        dataIndex: 'uploader',
+        title: '图片',
+        dataIndex: 'images',
         customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
+          if (text !== null && text !== '') {
+            return '查看图片'
           } else {
             return '- -'
           }
-        }
+        },
+        width: 100
       }, {
         title: '操作',
         dataIndex: 'operation',
-        scopedSlots: {customRender: 'operation'}
+        scopedSlots: {customRender: 'operation'},
+        width: 100
       }]
     }
   },
@@ -175,26 +193,26 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.bulletinAdd.visiable = true
+      this.productsAdd.visiable = true
     },
-    handleBulletinAddClose () {
-      this.bulletinAdd.visiable = false
+    handleProductsAddClose () {
+      this.productsAdd.visiable = false
     },
-    handleBulletinAddSuccess () {
-      this.bulletinAdd.visiable = false
-      this.$message.success('新增茶叶品种成功')
+    handleProductsAddSuccess () {
+      this.productsAdd.visiable = false
+      this.$message.success('新增茶叶产品成功')
       this.search()
     },
     edit (record) {
-      this.$refs.bulletinEdit.setFormValues(record)
-      this.bulletinEdit.visiable = true
+      this.$refs.productsEdit.setFormValues(record)
+      this.productsEdit.visiable = true
     },
-    handleBulletinEditClose () {
-      this.bulletinEdit.visiable = false
+    handleProductsEditClose () {
+      this.productsEdit.visiable = false
     },
-    handleBulletinEditSuccess () {
-      this.bulletinEdit.visiable = false
-      this.$message.success('修改茶叶品种成功')
+    handleProductsEditSuccess () {
+      this.productsEdit.visiable = false
+      this.$message.success('修改茶叶产品成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -298,6 +316,5 @@ export default {
   watch: {}
 }
 </script>
-<style lang="less" scoped>
-@import "../../../../static/less/Common";
+<style lang="less" scoped>@import "../../../../static/less/Common";
 </style>

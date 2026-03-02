@@ -1,5 +1,6 @@
+
 <template>
-  <a-modal v-model="show" title="新增茶叶品种" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="新增茶叶产品" @cancel="onClose" :width="800">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -11,27 +12,49 @@
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
         <a-col :span="12">
-          <a-form-item label='茶叶品种标题' v-bind="formItemLayout">
+          <a-form-item label='茶叶名称' v-bind="formItemLayout">
             <a-input v-decorator="[
-            'title',
-            { rules: [{ required: true, message: '请输入名称!' }] }
+            'name',
+            { rules: [{ required: true, message: '请输入茶叶名称!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="12">
-          <a-form-item label='上传人' v-bind="formItemLayout">
+          <a-form-item label='品种' v-bind="formItemLayout">
             <a-input v-decorator="[
-            'uploader',
-            { rules: [{ required: true, message: '请输入上传人!' }] }
+            'variety',
+            { rules: [{ required: true, message: '请输入品种!' }] }
             ]"/>
           </a-form-item>
         </a-col>
         <a-col :span="24">
-          <a-form-item label='茶叶品种内容' v-bind="formItemLayout">
+          <a-form-item label='生长习性及详细描述' v-bind="formItemLayout">
             <a-textarea :rows="6" v-decorator="[
-            'content',
-             { rules: [{ required: true, message: '请输入名称!' }] }
+            'description',
+             { rules: [{ required: true, message: '请输入详细描述!' }] }
             ]"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label='图册' v-bind="formItemLayout">
+            <a-upload
+              name="avatar"
+              action="http://127.0.0.1:9527/file/fileUpload/"
+              list-type="picture-card"
+              :file-list="fileList"
+              @preview="handlePreview"
+              @change="picHandleChange"
+            >
+              <div v-if="fileList.length < 8">
+                <a-icon type="plus" />
+                <div class="ant-upload-text">
+                  Upload
+                </div>
+              </div>
+            </a-upload>
+            <a-modal :visible="previewVisible" :footer="null" @cancel="handleCancel">
+              <img alt="example" style="width: 100%" :src="previewImage" />
+            </a-modal>
           </a-form-item>
         </a-col>
       </a-row>
@@ -39,8 +62,7 @@
   </a-modal>
 </template>
 
-<script>
-import {mapState} from 'vuex'
+<script>import {mapState} from 'vuex'
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -54,9 +76,9 @@ const formItemLayout = {
   wrapperCol: { span: 24 }
 }
 export default {
-  name: 'BulletinAdd',
+  name: 'ProductsAdd',
   props: {
-    bulletinAddVisiable: {
+    productsAddVisiable: {
       default: false
     }
   },
@@ -66,7 +88,7 @@ export default {
     }),
     show: {
       get: function () {
-        return this.bulletinAddVisiable
+        return this.productsAddVisiable
       },
       set: function () {
       }
@@ -83,6 +105,16 @@ export default {
     }
   },
   methods: {
+    handleRemove(file) {
+      const index = this.fileList.indexOf(file);
+      const newFileList = this.fileList.slice();
+      newFileList.splice(index, 1);
+      this.fileList = newFileList;
+    },
+    beforeUpload(file) {
+      this.fileList = [...this.fileList, file];
+      return false;
+    },
     handleCancel () {
       this.previewVisible = false
     },
@@ -99,6 +131,7 @@ export default {
     reset () {
       this.loading = false
       this.form.resetFields()
+      this.fileList = []
     },
     onClose () {
       this.reset()
@@ -113,7 +146,6 @@ export default {
       this.form.validateFields((err, values) => {
         values.images = images.length > 0 ? images.join(',') : null
         if (!err) {
-          values.publisher = this.currentUser.userId
           this.loading = true
           this.$post('/cos/tea-products', {
             ...values
@@ -131,5 +163,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
