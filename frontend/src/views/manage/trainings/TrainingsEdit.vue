@@ -29,9 +29,21 @@
         <a-col :span="24">
           <a-form-item label='培训课程内容' v-bind="formItemLayout">
             <a-textarea :rows="6" v-decorator="[
-            'content',
-             { rules: [{ required: true, message: '请输入名称!' }] }
+            'description',
+             { rules: [{ required: true, message: '请输入培训课程内容!' }] }
             ]"/>
+          </a-form-item>
+        </a-col>
+        <a-col :span="24">
+          <a-form-item label='课程视频上传' v-bind="formItemLayout">
+            <a-upload
+              name="avatar"
+              action="http://127.0.0.1:9527/file/fileUpload/"
+              :file-list="fileMusicList"
+              @change="musicHandleChange"
+            >
+              <a-button> <a-icon type="upload" :disabled="fileMusicList.length < 1"/> Upload </a-button>
+            </a-upload>
           </a-form-item>
         </a-col>
       </a-row>
@@ -80,7 +92,8 @@ export default {
       loading: false,
       fileList: [],
       previewVisible: false,
-      previewImage: ''
+      previewImage: '',
+      fileMusicList: []
     }
   },
   methods: {
@@ -93,6 +106,9 @@ export default {
       }
       this.previewImage = file.url || file.preview
       this.previewVisible = true
+    },
+    musicHandleChange ({ fileList }) {
+      this.fileMusicList = fileList
     },
     picHandleChange ({ fileList }) {
       this.fileList = fileList
@@ -108,7 +124,7 @@ export default {
     },
     setFormValues ({...bulletin}) {
       this.rowId = bulletin.id
-      let fields = ['title', 'content', 'uploader']
+      let fields = ['title', 'description', 'uploader']
       let obj = {}
       Object.keys(bulletin).forEach((key) => {
         if (key === 'images') {
@@ -133,7 +149,7 @@ export default {
     handleSubmit () {
       // 获取图片List
       let images = []
-      this.fileList.forEach(image => {
+      this.fileMusicList.forEach(image => {
         if (image.response !== undefined) {
           images.push(image.response)
         } else {
@@ -142,7 +158,7 @@ export default {
       })
       this.form.validateFields((err, values) => {
         values.id = this.rowId
-        values.images = images.length > 0 ? images.join(',') : null
+        values.videoUrl = images.length > 0 ? images.join(',') : null
         if (!err) {
           this.loading = true
           this.$put('/cos/trainings', {

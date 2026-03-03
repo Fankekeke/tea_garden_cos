@@ -58,9 +58,9 @@
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.content }}
+                {{ record.description }}
               </template>
-              {{ record.content.slice(0, 30) }} ...
+              {{ record.description.slice(0, 30) }} ...
             </a-tooltip>
           </template>
         </template>
@@ -134,9 +134,9 @@ export default {
         width: 300
       }, {
         title: '培训课程内容',
-        dataIndex: 'content',
+        dataIndex: 'description',
         scopedSlots: { customRender: 'contentShow' },
-        width: 600
+        width: 500
       }, {
         title: '发布时间',
         dataIndex: 'createDate',
