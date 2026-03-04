@@ -20,9 +20,9 @@
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-select v-model="queryParams.status" allowClear>
-                  <a-select-option value="0">待审核</a-select-option>
-                  <a-select-option value="1">已通过</a-select-option>
-                  <a-select-option value="2">未通过</a-select-option>
+                  <a-select-option value="待审核">待审核</a-select-option>
+                  <a-select-option value="通过">通过</a-select-option>
+                  <a-select-option value="驳回">驳回</a-select-option>
                 </a-select>
               </a-form-item>
             </a-col>
@@ -44,7 +44,7 @@
     </div>
     <div>
       <div class="operator">
-        <a-button type="primary" ghost @click="add">新增</a-button>
+<!--        <a-button type="primary" ghost @click="add">新增</a-button>-->
         <a-button @click="batchDelete">删除</a-button>
       </div>
       <!-- 表格区域 -->
@@ -89,14 +89,80 @@
         </template>
         <template slot="statusShow" slot-scope="text, record">
           <a-tag :color="record.status === '0' ? 'orange' : record.status === '1' ? 'green' : 'red'">
-            {{ record.status === '0' ? '待审核' : record.status === '1' ? '已通过' : '未通过' }}
+            {{ record.status }}
           </a-tag>
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
+          <a-badge :status="record.status === '0' ? 'processing' : record.status === '1' ? 'success' : 'error'" style="margin-right: 8px;">
+            <a-icon
+              type="check-circle"
+              theme="twoTone"
+              twoToneColor="#52c41a"
+              @click="audit(record)"
+              title="审核"              style="cursor: pointer;"
+            />
+          </a-badge>
         </template>
       </a-table>
     </div>
+    <!-- 审核弹窗 -->
+    <a-modal
+      v-model="auditVisible"
+      title="故事审核"
+      @ok="handleAuditSubmit"
+      :confirmLoading="auditLoading"
+      okText="提交"
+      cancelText="取消"
+    >
+      <a-form-model
+        ref="auditForm"
+        :model="auditForm"
+        :labelCol="{ span: 6 }"
+        :wrapperCol="{ span: 16 }"
+      >
+        <a-form-model-item label="当前状态">
+          <a-tag :color="currentRecord.status === '待审核' ? 'orange' : currentRecord.status === '通过' ? 'green' : 'red'">
+            {{ currentRecord.status}}
+          </a-tag>
+        </a-form-model-item>
+
+        <a-form-model-item label="故事标题">
+          {{ currentRecord.title }}
+        </a-form-model-item>
+
+        <a-form-model-item label="茶农姓名">
+          {{ currentRecord.userName }}
+        </a-form-model-item>
+
+        <a-form-model-item
+          label="审核结果"
+          prop="status"
+          :rules="[{ required: true, message: '请选择审核结果', trigger: 'change' }]"
+        >
+          <a-radio-group v-model="auditForm.status" button-style="solid">
+            <a-radio-button value="通过">
+              <a-icon type="check" /> 通过
+            </a-radio-button>
+            <a-radio-button value="驳回">
+              <a-icon type="close" /> 不通过
+            </a-radio-button>
+          </a-radio-group>
+        </a-form-model-item>
+
+        <a-form-model-item
+          label="审核备注"
+          prop="auditRemark"
+        >
+          <a-textarea
+            v-model="auditForm.auditRemark"
+            placeholder="请输入审核备注信息（选填）"
+            :rows="4"
+            allowClear
+          />
+        </a-form-model-item>
+      </a-form-model>
+    </a-modal>
     <stories-add
       v-if="storiesAdd.visiable"
       @close="handleStoriesAddClose"
@@ -124,7 +190,7 @@ export default {
   components: {StoriesAdd, StoriesEdit, RangeDate},
   data () {
     return {
-      advanced: false,
+      dvanced: false,
       storiesAdd: {
         visiable: false
       },
@@ -146,7 +212,15 @@ export default {
         showSizeChanger: true,
         showTotal: (total, range) => `显示 ${range[0]} ~ ${range[1]} 条记录，共 ${total} 条记录`
       },
-      userList: []
+      userList: [],
+      auditVisible: false,
+      auditLoading: false,
+      currentRecord: {},
+      auditForm: {
+        id: null,
+        status: '通过',
+        auditRemark: ''
+      }
     }
   },
   computed: {
@@ -230,6 +304,39 @@ export default {
     this.fetch()
   },
   methods: {
+    audit (record) {
+      this.currentRecord = record
+      this.auditForm = {
+        id: record.id,
+        status: record.status || '1',
+        auditRemark: record.auditRemark || ''
+      }
+      this.auditVisible = true
+
+      // 重置表单验证
+      if (this.$refs.auditForm) {
+        this.$refs.auditForm.clearValidate()
+      }
+    },
+
+    handleAuditSubmit () {
+      this.$refs.auditForm.validate(valid => {
+        if (valid) {
+          this.auditLoading = true
+          this.$put('/cos/stories', {
+            ...this.auditForm
+          }).then(() => {
+            this.$message.success('审核成功')
+            this.auditVisible = false
+            this.search()
+          }).catch(() => {
+            this.$message.error('审核失败，请重试')
+          }).finally(() => {
+            this.auditLoading = false
+          })
+        }
+      })
+    },
     onSelectChange (selectedRowKeys) {
       this.selectedRowKeys = selectedRowKeys
     },

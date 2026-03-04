@@ -7,6 +7,7 @@ import cc.mrbird.febs.cos.entity.ActivityParticipants;
 import cc.mrbird.febs.cos.entity.UserInfo;
 import cc.mrbird.febs.cos.service.IActivityParticipantsService;
 import cc.mrbird.febs.cos.service.IUserInfoService;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author FanK
@@ -39,6 +42,32 @@ public class ActivityParticipantsController {
     @GetMapping("/page")
     public R page(Page<ActivityParticipants> page, ActivityParticipants activityParticipants) {
         return R.ok(activityParticipantsService.queryPage(page, activityParticipants));
+    }
+
+    /**
+     * 通过ID查询活动报名信息
+     *
+     * @param id ID
+     * @return 结果
+     */
+    @GetMapping("/queryDetailById")
+    public R queryDetailById(Integer id) {
+        List<ActivityParticipants> participantsList = activityParticipantsService.list(Wrappers.<ActivityParticipants>lambdaQuery().eq(ActivityParticipants::getActivityId, id));
+        if (CollectionUtil.isEmpty(participantsList)) {
+            return R.ok(participantsList);
+        }
+        List<UserInfo> userInfoList = userInfoService.list();
+        Map<Integer, UserInfo> map = userInfoList.stream().collect(Collectors.toMap(UserInfo::getId, e -> e));
+        participantsList.forEach(e -> {
+            UserInfo userInfo = map.get(e.getUserId());
+            if (userInfo != null) {
+                e.setCode(userInfo.getCode());
+                e.setName(userInfo.getName());
+                e.setSex(userInfo.getSex());
+                e.setImages(userInfo.getImages());
+            }
+        });
+        return R.ok(participantsList);
     }
 
     /**

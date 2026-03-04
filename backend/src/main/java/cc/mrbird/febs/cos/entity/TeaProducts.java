@@ -54,5 +54,7 @@ public class TeaProducts implements Serializable {
     @TableField(exist = false)
     private String record;
 
+    @TableField(exist = false)
+    private Object teaRecords;
 
 }

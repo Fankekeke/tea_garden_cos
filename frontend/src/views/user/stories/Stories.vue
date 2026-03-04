@@ -1,3 +1,4 @@
+
 <template>
   <a-card :bordered="false" class="card-area">
     <div :class="advanced ? 'search' : null">
@@ -7,7 +8,7 @@
           <div :class="advanced ? null: 'fold'">
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="活动标题"
+                label="故事标题"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
                 <a-input v-model="queryParams.title"/>
@@ -15,10 +16,22 @@
             </a-col>
             <a-col :md="6" :sm="24">
               <a-form-item
-                label="发布人"
+                label="状态"
                 :labelCol="{span: 5}"
                 :wrapperCol="{span: 18, offset: 1}">
-                <a-input v-model="queryParams.publisher"/>
+                <a-select v-model="queryParams.status" allowClear>
+                  <a-select-option value="待审核">待审核</a-select-option>
+                  <a-select-option value="通过">通过</a-select-option>
+                  <a-select-option value="驳回">驳回</a-select-option>
+                </a-select>
+              </a-form-item>
+            </a-col>
+            <a-col :md="6" :sm="24">
+              <a-form-item
+                label="茶农姓名"
+                :labelCol="{span: 5}"
+                :wrapperCol="{span: 18, offset: 1}">
+                <a-input v-model="queryParams.name"/>
               </a-form-item>
             </a-col>
           </div>
@@ -42,7 +55,7 @@
                :pagination="pagination"
                :loading="loading"
                :rowSelection="{selectedRowKeys: selectedRowKeys, onChange: onSelectChange}"
-               :scroll="{ x: 900 }"
+               :scroll="{ x: 1200 }"
                @change="handleTableChange">
         <template slot="titleShow" slot-scope="text, record">
           <template>
@@ -64,109 +77,58 @@
             </a-tooltip>
           </template>
         </template>
+        <template slot="userNameShow" slot-scope="text, record">
+          <template>
+            <a-tooltip>
+              <template slot="title">
+                {{ record.userName }}
+              </template>
+              {{ record.userName }}
+            </a-tooltip>
+          </template>
+        </template>
+        <template slot="statusShow" slot-scope="text, record">
+          <a-tag :color="currentRecord.status === '待审核' ? 'orange' : currentRecord.status === '通过' ? 'green' : 'red'">
+            {{ currentRecord.status}}
+          </a-tag>
+        </template>
         <template slot="operation" slot-scope="text, record">
-          <template slot="titleShow" slot-scope="text, record">
-            <template>
-              <a-tooltip>
-                <template slot="title">
-                  {{ record.title }}
-                </template>
-                {{ record.title.slice(0, 8) }} ...
-              </a-tooltip>
-            </template>
-          </template>
-          <template slot="contentShow" slot-scope="text, record">
-            <template>
-              <a-tooltip>
-                <template slot="title">
-                  {{ record.content }}
-                </template>
-                {{ record.content.slice(0, 30) }} ...
-              </a-tooltip>
-            </template>
-          </template>
-          <template slot="eventTime" slot-scope="text, record">
-            <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm') : '--' }}</span>
-          </template>
-          <template slot="finishTime" slot-scope="text, record">
-            <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm') : '--' }}</span>
-          </template>
-          <template slot="publisher" slot-scope="text, record">
-            <span>{{ text || '--' }}</span>
-          </template>
-          <template slot="createdAt" slot-scope="text, record">
-            <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '--' }}</span>
-          </template>
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
-          <a-icon type="team" theme="twoTone" twoToneColor="#52c41a" @click="viewParticipants(record)" title="查看报名" style="margin-left: 10px;"></a-icon>
         </template>
       </a-table>
     </div>
-    <a-drawer
-      title="报名用户列表"
-      :visible="participantsVisible"
-      :width="700"
-      @close="handleParticipantsClose"
-      placement="right"
-    >
-      <a-table
-        :columns="participantsColumns"
-        :dataSource="participantsData"
-        :pagination="false"
-        :loading="participantsLoading"
-        :scroll="{ y: 500 }"
-      >
-        <template slot="sexShow" slot-scope="text">
-          <a-tag :color="text === 1 ? 'blue' : 'pink'">
-            {{ text === 1 ? '男' : '女' }}
-          </a-tag>
-        </template>
-        <template slot="joinTimeShow" slot-scope="text">
-          <span>{{ text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : '--' }}</span>
-        </template>
-        <template slot="imagesShow" slot-scope="text">
-          <a-avatar
-            v-if="text"
-            :src="'http://127.0.0.1:9527/imagesWeb/' + text"
-            :size="40"
-          />
-          <a-avatar v-else icon="user" :size="40" />
-        </template>
-      </a-table>
-    </a-drawer>
-    <bulletin-add
-      v-if="bulletinAdd.visiable"
-      @close="handleBulletinAddClose"
-      @success="handleBulletinAddSuccess"
-      :bulletinAddVisiable="bulletinAdd.visiable">
-    </bulletin-add>
-    <bulletin-edit
-      ref="bulletinEdit"
-      @close="handleBulletinEditClose"
-      @success="handleBulletinEditSuccess"
-      :bulletinEditVisiable="bulletinEdit.visiable">
-    </bulletin-edit>
+    <stories-add
+      v-if="storiesAdd.visiable"
+      @close="handleStoriesAddClose"
+      @success="handleStoriesAddSuccess"
+      :storiesAddVisiable="storiesAdd.visiable">
+    </stories-add>
+    <stories-edit
+      ref="storiesEdit"
+      @close="handleStoriesEditClose"
+      @success="handleStoriesEditSuccess"
+      :storiesEditVisiable="storiesEdit.visiable">
+    </stories-edit>
   </a-card>
 </template>
 
-<script>
-import RangeDate from '@/components/datetime/RangeDate'
-import BulletinAdd from './ActivitiesAdd.vue'
-import BulletinEdit from './ActivitiesEdit.vue'
+<script>import RangeDate from '@/components/datetime/RangeDate'
+import StoriesAdd from './StoriesAdd.vue'
+import StoriesEdit from './StoriesEdit.vue'
 import {mapState} from 'vuex'
 import moment from 'moment'
 moment.locale('zh-cn')
 
 export default {
-  name: 'Bulletin',
-  components: {BulletinAdd, BulletinEdit, RangeDate},
+  name: 'Stories',
+  components: {StoriesAdd, StoriesEdit, RangeDate},
   data () {
     return {
-      advanced: false,
-      bulletinAdd: {
+      dvanced: false,
+      storiesAdd: {
         visiable: false
       },
-      bulletinEdit: {
+      storiesEdit: {
         visiable: false
       },
       queryParams: {},
@@ -185,10 +147,14 @@ export default {
         showTotal: (total, range) => `显示 ${range[0]} ~ ${range[1]} 条记录，共 ${total} 条记录`
       },
       userList: [],
-      participantsVisible: false,
-      participantsData: [],
-      participantsLoading: false,
-      currentActivityId: null
+      auditVisible: false,
+      auditLoading: false,
+      currentRecord: {},
+      auditForm: {
+        id: null,
+        status: '1',
+        auditRemark: ''
+      }
     }
   },
   computed: {
@@ -197,66 +163,74 @@ export default {
     }),
     columns () {
       return [{
-        title: '互动标题',
+        title: '故事标题',
         dataIndex: 'title',
         scopedSlots: { customRender: 'titleShow' },
         width: 200
       }, {
-        title: '茶园活动内容',
+        title: '故事内容',
         dataIndex: 'content',
         scopedSlots: { customRender: 'contentShow' },
         width: 300
       }, {
-        title: '活动时间',
-        dataIndex: 'eventTime',
-        scopedSlots: { customRender: 'eventTime' },
+        title: '状态',
+        dataIndex: 'status',
+        scopedSlots: { customRender: 'statusShow' },
+        width: 100
+      }, {
+        title: '审核备注',
+        dataIndex: 'auditRemark',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        },
         width: 150
       }, {
-        title: '结束时间',
-        dataIndex: 'finishTime',
-        scopedSlots: { customRender: 'finishTime' },
-        width: 150
-      }, {
-        title: '发布人',
-        dataIndex: 'publisher',
-        scopedSlots: { customRender: 'publisher' },
+        title: '茶农姓名',
+        dataIndex: 'userName',
+        scopedSlots: { customRender: 'userNameShow' },
         width: 120
+      }, {
+        title: '茶农编号',
+        dataIndex: 'userCode',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        },
+        width: 120
+      }, {
+        title: '性别',
+        dataIndex: 'sex',
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text === '1' ? '男' : '女'
+          } else {
+            return '- -'
+          }
+        },
+        width: 80
       }, {
         title: '创建时间',
         dataIndex: 'createdAt',
-        scopedSlots: { customRender: 'createdAt' },
-        width: 160
+        customRender: (text, row, index) => {
+          if (text !== null) {
+            return text
+          } else {
+            return '- -'
+          }
+        },
+        width: 150
       }, {
         title: '操作',
         dataIndex: 'operation',
         scopedSlots: {customRender: 'operation'},
         width: 80
-      }]
-    },
-    participantsColumns () {
-      return [{
-        title: '头像',
-        dataIndex: 'images',
-        scopedSlots: { customRender: 'imagesShow' },
-        width: 80
-      }, {
-        title: '姓名',
-        dataIndex: 'name',
-        width: 150
-      }, {
-        title: '性别',
-        dataIndex: 'sex',
-        scopedSlots: { customRender: 'sexShow' },
-        width: 80
-      }, {
-        title: '报名时间',
-        dataIndex: 'joinTime',
-        scopedSlots: { customRender: 'joinTimeShow' },
-        width: 180
-      }, {
-        title: '编号',
-        dataIndex: 'code',
-        width: 150
       }]
     }
   },
@@ -264,46 +238,37 @@ export default {
     this.fetch()
   },
   methods: {
-    viewParticipants (record) {
-      this.currentActivityId = record.id
-      this.participantsVisible = true
-      this.queryParticipantsDetailById(record.id)
+    audit (record) {
+      this.currentRecord = record
+      this.auditForm = {
+        id: record.id,
+        status: record.status || '1',
+        auditRemark: record.auditRemark || ''
+      }
+      this.auditVisible = true
+
+      // 重置表单验证
+      if (this.$refs.auditForm) {
+        this.$refs.auditForm.clearValidate()
+      }
     },
 
-    loadParticipantsList (activityId) {
-      this.participantsLoading = true
-      this.$get('/cos/activity-participants/list', {
-        activityId: activityId
-      }).then((r) => {
-        console.log(r)
-        if (r.data && r.data.list) {
-          this.participantsData = r.data.list
-        } else if (Array.isArray(r.data)) {
-          this.participantsData = r.data
-        } else {
-          this.participantsData = []
+    handleAuditSubmit () {
+      this.$refs.auditForm.validate(valid => {
+        if (valid) {
+          this.auditLoading = true
+          this.$put('/cos/stories', {
+            ...this.auditForm
+          }).then(() => {
+            this.$message.success('审核成功')
+            this.auditVisible = false
+            this.search()
+          }).catch(() => {
+            this.$message.error('审核失败，请重试')
+          }).finally(() => {
+            this.auditLoading = false
+          })
         }
-        this.participantsLoading = false
-      }).catch(() => {
-        this.participantsLoading = false
-      })
-    },
-
-    handleParticipantsClose () {
-      this.participantsVisible = false
-      this.participantsData = []
-      this.currentActivityId = null
-    },
-
-    queryParticipantsDetailById (id) {
-      this.participantsLoading = true
-      this.$get('/cos/activity-participants/queryDetailById', {
-        id
-      }).then((r) => {
-        this.participantsData = r.data.data
-        this.participantsLoading = false
-      }).catch(() => {
-        this.participantsLoading = false
       })
     },
     onSelectChange (selectedRowKeys) {
@@ -313,26 +278,26 @@ export default {
       this.advanced = !this.advanced
     },
     add () {
-      this.bulletinAdd.visiable = true
+      this.storiesAdd.visiable = true
     },
-    handleBulletinAddClose () {
-      this.bulletinAdd.visiable = false
+    handleStoriesAddClose () {
+      this.storiesAdd.visiable = false
     },
-    handleBulletinAddSuccess () {
-      this.bulletinAdd.visiable = false
-      this.$message.success('新增茶园活动成功')
+    handleStoriesAddSuccess () {
+      this.storiesAdd.visiable = false
+      this.$message.success('新增茶农故事成功')
       this.search()
     },
     edit (record) {
-      this.$refs.bulletinEdit.setFormValues(record)
-      this.bulletinEdit.visiable = true
+      this.$refs.storiesEdit.setFormValues(record)
+      this.storiesEdit.visiable = true
     },
-    handleBulletinEditClose () {
-      this.bulletinEdit.visiable = false
+    handleStoriesEditClose () {
+      this.storiesEdit.visiable = false
     },
-    handleBulletinEditSuccess () {
-      this.bulletinEdit.visiable = false
-      this.$message.success('修改茶园活动成功')
+    handleStoriesEditSuccess () {
+      this.storiesEdit.visiable = false
+      this.$message.success('修改茶农故事成功')
       this.search()
     },
     handleDeptChange (value) {
@@ -350,7 +315,7 @@ export default {
         centered: true,
         onOk () {
           let ids = that.selectedRowKeys.join(',')
-          that.$delete('/cos/activities/' + ids).then(() => {
+          that.$delete('/cos/stories/' + ids).then(() => {
             that.$message.success('删除成功')
             that.selectedRowKeys = []
             that.search()
@@ -420,7 +385,8 @@ export default {
         params.size = this.pagination.defaultPageSize
         params.current = this.pagination.defaultCurrent
       }
-      this.$get('/cos/activities/page', {
+      params.userId = this.currentUser.userId
+      this.$get('/cos/stories/page', {
         ...params
       }).then((r) => {
         let data = r.data.data
@@ -436,6 +402,5 @@ export default {
   watch: {}
 }
 </script>
-<style lang="less" scoped>
-@import "../../../../static/less/Common";
+<style lang="less" scoped>@import "../../../../static/less/Common";
 </style>

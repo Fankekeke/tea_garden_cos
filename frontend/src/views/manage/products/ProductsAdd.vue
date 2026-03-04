@@ -261,7 +261,7 @@ export default {
       })
       this.form.validateFields((err, values) => {
         values.images = images.length > 0 ? images.join(',') : null
-        values.growthRecords = this.growthRecords.length > 0 ? this.growthRecords : null
+        values.record = this.growthRecords.length > 0 ? JSON.stringify(this.growthRecords) : null
         if (!err) {
           this.loading = true
           this.$post('/cos/tea-products', {

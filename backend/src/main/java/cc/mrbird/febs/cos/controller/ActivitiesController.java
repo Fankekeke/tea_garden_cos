@@ -4,7 +4,10 @@ package cc.mrbird.febs.cos.controller;
 import cc.mrbird.febs.common.exception.FebsException;
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.Activities;
+import cc.mrbird.febs.cos.entity.ActivityParticipants;
 import cc.mrbird.febs.cos.service.IActivitiesService;
+import cc.mrbird.febs.cos.service.IActivityParticipantsService;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author FanK
@@ -25,6 +30,8 @@ import java.util.List;
 public class ActivitiesController {
 
     private final IActivitiesService activitiesService;
+
+    private final IActivityParticipantsService activityParticipantsService;
 
     /**
      * 分页查询茶园活动信息
@@ -45,7 +52,17 @@ public class ActivitiesController {
      */
     @GetMapping("/list")
     public R list() {
-        return R.ok(activitiesService.list());
+        List<ActivityParticipants> participantsList = activityParticipantsService.list();
+        Map<Integer, List<ActivityParticipants>> map = participantsList.stream().collect(Collectors.groupingBy(ActivityParticipants::getActivityId));
+        List<Activities> result = activitiesService.list();
+        if (CollectionUtil.isEmpty(result)) {
+            return R.ok(result);
+        }
+        for (Activities activities : result) {
+            List<ActivityParticipants> activityParticipants = map.get(activities.getId());
+            activities.setNum(CollectionUtil.isEmpty(activityParticipants) ? 0 : activityParticipants.size());
+        }
+        return R.ok(result);
     }
 
     /**

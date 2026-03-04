@@ -10,6 +10,7 @@ import cc.mrbird.febs.cos.service.ITeaRecordsService;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author FanK
@@ -50,7 +53,14 @@ public class TeaProductsController {
      */
     @GetMapping("/list")
     public R list() {
-        return R.ok(teaProductsService.list());
+        List<TeaProducts> teaProductsList = teaProductsService.list();
+        List<TeaRecords> teaRecordsList = teaRecordsService.list();
+        Map<Integer, List<TeaRecords>> map = teaRecordsList.stream().collect(Collectors.groupingBy(TeaRecords::getTeaId));
+        for (TeaProducts teaProducts : teaProductsList) {
+            List<TeaRecords> teaRecords = map.get(teaProducts.getId());
+            teaProducts.setTeaRecords(teaRecords);
+        }
+        return R.ok(teaProductsList);
     }
 
     /**
@@ -81,8 +91,19 @@ public class TeaProductsController {
      * @param teaProducts 茶叶品种信息
      * @return 结果
      */
+    @Transactional(rollbackFor = Exception.class)
     @PutMapping
-    public R edit(TeaProducts teaProducts) {
+    public R edit(TeaProducts teaProducts) throws FebsException {
+        if (StrUtil.isEmpty(teaProducts.getRecord())) {
+            throw new FebsException("请填写茶叶种植与采摘记录");
+        }
+
+        teaRecordsService.remove(Wrappers.<TeaRecords>lambdaQuery().eq(TeaRecords::getTeaId, teaProducts.getId()));
+        List<TeaRecords> teaRecordsList = JSONUtil.toList(teaProducts.getRecord(), TeaRecords.class);
+        teaRecordsList.forEach(teaRecords -> {
+            teaRecords.setTeaId(teaProducts.getId());
+        });
+        teaRecordsService.saveBatch(teaRecordsList);
         return R.ok(teaProductsService.updateById(teaProducts));
     }
 

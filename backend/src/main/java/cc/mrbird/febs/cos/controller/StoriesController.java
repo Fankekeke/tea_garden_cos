@@ -3,7 +3,9 @@ package cc.mrbird.febs.cos.controller;
 
 import cc.mrbird.febs.common.utils.R;
 import cc.mrbird.febs.cos.entity.Stories;
+import cc.mrbird.febs.cos.entity.UserInfo;
 import cc.mrbird.febs.cos.service.IStoriesService;
+import cc.mrbird.febs.cos.service.IUserInfoService;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author FanK
@@ -23,6 +27,8 @@ import java.util.List;
 public class StoriesController {
 
     private final IStoriesService storiesService;
+
+    private final IUserInfoService userInfoService;
 
     /**
      * 分页查询茶农故事信息
@@ -53,7 +59,18 @@ public class StoriesController {
      */
     @GetMapping("/queryListApproved")
     public R queryListApproved() {
-        return R.ok(storiesService.list(Wrappers.<Stories>lambdaQuery().eq(Stories::getStatus, "通过")));
+        List<Stories> storiesList = storiesService.list(Wrappers.<Stories>lambdaQuery().eq(Stories::getStatus, "通过"));
+        List<UserInfo> userInfoList = userInfoService.list();
+        Map<Integer, UserInfo> map = userInfoList.stream().collect(Collectors.toMap(UserInfo::getId, e -> e));
+
+        for (Stories stories : storiesList) {
+            UserInfo userInfo = map.get(stories.getUserId());
+            stories.setCode(userInfo.getCode());
+            stories.setName(userInfo.getName());
+            stories.setSex(userInfo.getSex());
+            stories.setImages(userInfo.getImages());
+        }
+        return R.ok(storiesList);
     }
 
     /**

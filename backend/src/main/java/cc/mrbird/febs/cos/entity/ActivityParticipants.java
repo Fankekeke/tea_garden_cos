@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -40,4 +41,27 @@ public class ActivityParticipants implements Serializable {
     private String joinTime;
 
 
+    /**
+     * 用户编号
+     */
+    @TableField(exist = false)
+    private String code;
+
+    /**
+     * 用户名称
+     */
+    @TableField(exist = false)
+    private String name;
+
+    /**
+     * 性别（0.男1.女）
+     */
+    @TableField(exist = false)
+    private Integer sex;
+
+    /**
+     * 头像
+     */
+    @TableField(exist = false)
+    private String images;
 }
