@@ -68,7 +68,7 @@
       <div class="video-player" v-if="currentTraining.videoUrl">
         <video
           :key="videoKey"
-          :src="'/static/upload/' + currentTraining.videoUrl"
+          :src="'http://127.0.0.1:9527/imagesWeb/' + currentTraining.videoUrl"
           controls
           autoplay          style="width: 100%; max-height: 500px;"
         >

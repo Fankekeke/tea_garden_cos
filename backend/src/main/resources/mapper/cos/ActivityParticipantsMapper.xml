@@ -22,7 +22,7 @@
         ui.images
         FROM
         activity_participants ap
-        LEFT JOIN activityParticipants act ON (act.id = ap.activity_id)
+        LEFT JOIN activities act ON (act.id = ap.activity_id)
         LEFT JOIN user_info ui ON (ui.id = ap.user_id)
         WHERE
         1 = 1

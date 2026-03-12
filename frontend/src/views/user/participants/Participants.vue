@@ -77,9 +77,9 @@
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.userName }}
+                {{ record.name }}
               </template>
-              {{ record.userName }}
+              {{ record.name }}
             </a-tooltip>
           </template>
         </template>
@@ -175,24 +175,24 @@ export default {
         width: 150
       }, {
         title: '参与者姓名',
-        dataIndex: 'userName',
+        dataIndex: 'name',
         scopedSlots: { customRender: 'userNameShow' },
         width: 120
       }, {
         title: '头像',
-        dataIndex: 'userImages',
+        dataIndex: 'images',
         customRender: (text, record, index) => {
-          if (!record.userImages) return <a-avatar shape="square" icon="user" />
+          if (!record.images) return <a-avatar shape="square" icon="user" />
           return <a-popover>
             <template slot="content">
-              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages } />
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images } />
             </template>
-            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.userImages } />
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images } />
           </a-popover>
         }
       }, {
         title: '参与者编号',
-        dataIndex: 'userCode',
+        dataIndex: 'code',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -206,7 +206,7 @@ export default {
         dataIndex: 'sex',
         customRender: (text, row, index) => {
           if (text !== null) {
-            return text === '1' ? '男' : '女'
+            return text == '0' ? '男' : '女'
           } else {
             return '- -'
           }
@@ -223,11 +223,6 @@ export default {
           }
         },
         width: 150
-      }, {
-        title: '操作',
-        dataIndex: 'operation',
-        scopedSlots: {customRender: 'operation'},
-        width: 80
       }]
     }
   },

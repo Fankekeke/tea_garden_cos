@@ -210,12 +210,12 @@ export default {
         title: '活动时间',
         dataIndex: 'eventTime',
         scopedSlots: { customRender: 'eventTime' },
-        width: 150
+        width: 200
       }, {
         title: '结束时间',
         dataIndex: 'finishTime',
         scopedSlots: { customRender: 'finishTime' },
-        width: 150
+        width: 200
       }, {
         title: '发布人',
         dataIndex: 'publisher',
@@ -225,7 +225,7 @@ export default {
         title: '创建时间',
         dataIndex: 'createdAt',
         scopedSlots: { customRender: 'createdAt' },
-        width: 160
+        width: 200
       }, {
         title: '操作',
         dataIndex: 'operation',

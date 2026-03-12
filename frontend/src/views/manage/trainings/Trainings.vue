@@ -130,26 +130,12 @@ export default {
       return [{
         title: '标题',
         dataIndex: 'title',
-        scopedSlots: { customRender: 'titleShow' },
-        width: 300
       }, {
         title: '培训课程内容',
         dataIndex: 'description',
-        scopedSlots: { customRender: 'contentShow' },
-        width: 500
       }, {
         title: '发布时间',
-        dataIndex: 'createDate',
-        customRender: (text, row, index) => {
-          if (text !== null) {
-            return text
-          } else {
-            return '- -'
-          }
-        }
-      }, {
-        title: '上传人',
-        dataIndex: 'uploader',
+        dataIndex: 'createdAt',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text

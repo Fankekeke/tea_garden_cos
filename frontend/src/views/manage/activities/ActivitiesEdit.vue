@@ -145,6 +145,9 @@ export default {
         if (key === 'eventTime') {
           bulletin['eventTime'] = moment(bulletin['eventTime'])
         }
+        if (key === 'finishTime') {
+          bulletin['finishTime'] = moment(bulletin['finishTime'])
+        }
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)
           obj[key] = bulletin[key]

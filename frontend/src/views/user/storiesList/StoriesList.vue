@@ -97,7 +97,7 @@
             <a-col :span="3">
               <a-avatar
                 v-if="currentStory.images"
-                :src="'/static/upload/' + currentStory.images"
+                :src="'http://127.0.0.1:9527/imagesWeb/' + currentStory.images"
                 :size="80"
               />
               <a-avatar v-else icon="user" :size="80" />
@@ -116,7 +116,7 @@
         <a-divider />
 
         <div class="detail-content">
-          <p>{{ currentStory.content }}</p>
+          {{ currentStory.content }}
         </div>
 
         <a-divider />
@@ -179,13 +179,7 @@ export default {
       this.loading = true
       this.$get('/cos/stories/queryListApproved').then((r) => {
         console.log(r)
-        if (r.data && r.data.data) {
-          this.storiesList = r.data.data
-        } else if (Array.isArray(r.data)) {
-          this.storiesList = r.data
-        } else {
-          this.storiesList = []
-        }
+        this.storiesList = r.data.data
         this.loading = false
       }).catch(() => {
         this.loading = false
@@ -280,11 +274,11 @@ export default {
   line-height: 1.8;
   margin-bottom: 16px;
   max-height: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 6;
-  -webkit-box-orient: vertical;
+  /*overflow: hidden;*/
+  /*text-overflow: ellipsis;*/
+  /*display: -webkit-box;*/
+  /*-webkit-line-clamp: 6;*/
+  /*-webkit-box-orient: vertical;*/
   background: #f9f9f9;
   padding: 12px;
   border-radius: 4px;

@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="修改培训课程" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="修改培训课程" @cancel="onClose" :width="600">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -10,19 +10,11 @@
     </template>
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
-        <a-col :span="12">
+        <a-col :span="24">
           <a-form-item label='培训课程标题' v-bind="formItemLayout">
             <a-input v-decorator="[
             'title',
             { rules: [{ required: true, message: '请输入名称!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='上传人' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'uploader',
-            { rules: [{ required: true, message: '请输入上传人!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -111,7 +103,7 @@ export default {
       this.fileMusicList = fileList
     },
     picHandleChange ({ fileList }) {
-      this.fileList = fileList
+      this.fileMusicList = fileList
     },
     imagesInit (images) {
       if (images !== null && images !== '') {
@@ -119,17 +111,17 @@ export default {
         images.split(',').forEach((image, index) => {
           imageList.push({uid: index, name: image, status: 'done', url: 'http://127.0.0.1:9527/imagesWeb/' + image})
         })
-        this.fileList = imageList
+        this.fileMusicList = imageList
       }
     },
     setFormValues ({...bulletin}) {
       this.rowId = bulletin.id
-      let fields = ['title', 'description', 'uploader']
+      let fields = ['title', 'description', 'videoUrl']
       let obj = {}
       Object.keys(bulletin).forEach((key) => {
-        if (key === 'images') {
-          this.fileList = []
-          this.imagesInit(bulletin['images'])
+        if (key === 'videoUrl' && bulletin['videoUrl'] !== null) {
+          this.fileMusicList = []
+          this.imagesInit(bulletin['videoUrl'])
         }
         if (fields.indexOf(key) !== -1) {
           this.form.getFieldDecorator(key)

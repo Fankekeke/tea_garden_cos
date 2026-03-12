@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="修改茶叶品种" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="修改茶叶品种" @cancel="onClose" :width="750">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -76,12 +76,56 @@
           </a-form-item>
         </a-col>
       </a-row>
+      <a-modal
+        :visible="growthRecordVisible"
+        title="添加生长记录"
+        @ok="handleGrowthRecordOk"
+        @cancel="handleGrowthRecordCancel"
+        okText="确定"
+        cancelText="取消"
+      >
+        <a-form-model layout="vertical">
+          <a-form-model-item label="阶段">
+            <a-select
+              v-model="tempStage"
+              placeholder="请选择阶段"
+            >
+              <a-select-option value="施肥">施肥</a-select-option>
+              <a-select-option value="除草">除草</a-select-option>
+              <a-select-option value="采摘">采摘</a-select-option>
+              <a-select-option value="修剪">修剪</a-select-option>
+              <a-select-option value="灌溉">灌溉</a-select-option>
+              <a-select-option value="病虫害防治">病虫害防治</a-select-option>
+              <a-select-option value="发芽期">发芽期</a-select-option>
+              <a-select-option value="生长期">生长期</a-select-option>
+              <a-select-option value="成熟期">成熟期</a-select-option>
+            </a-select>
+          </a-form-model-item>
+
+          <a-form-model-item label="操作详情/生长状态描述">
+            <a-textarea
+              v-model="tempContent"
+              placeholder="请输入详细描述"
+              :rows="3"
+            />
+          </a-form-model-item>
+
+          <a-form-model-item label="记录日期">
+            <a-date-picker
+              v-model="tempRecordDate"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+            />
+          </a-form-model-item>
+        </a-form-model>
+      </a-modal>
     </a-form>
   </a-modal>
 </template>
 
 <script>
 import {mapState} from 'vuex'
+import moment from "moment";
 function getBase64 (file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -97,7 +141,7 @@ const formItemLayout = {
 export default {
   name: 'BulletinEdit',
   props: {
-    bulletinEditVisiable: {
+    productsEditVisiable: {
       default: false
     }
   },
@@ -107,7 +151,7 @@ export default {
     }),
     show: {
       get: function () {
-        return this.bulletinEditVisiable
+        return this.productsEditVisiable
       },
       set: function () {
       }
@@ -123,6 +167,10 @@ export default {
       previewVisible: false,
       previewImage: '',
       growthRecords: [],
+      growthRecordVisible: false,
+      tempStage: '',
+      tempContent: '',
+      tempRecordDate: '',
       growthColumns: [
         {
           title: '阶段',
@@ -208,66 +256,31 @@ export default {
       this.fileList = []
       this.growthRecords = []
     },
-    addGrowthRecord () {
-      this.$modal.info({
-        title: '添加生长记录',
-        content: h => {
-          return h('div', [
-            h('a-form-model', { props: { layout: 'vertical' } }, [
-              h('a-form-model-item', { props: { label: '阶段' } }, [
-                h('a-select', {
-                  props: { placeholder: '请选择阶段', value: this.tempStage },
-                  on: { change: (val) => { this.tempStage = val } }
-                }, [
-                  h('a-select-option', { props: { value: '施肥' } }, '施肥'),
-                  h('a-select-option', { props: { value: '除草' } }, '除草'),
-                  h('a-select-option', { props: { value: '采摘' } }, '采摘'),
-                  h('a-select-option', { props: { value: '修剪' } }, '修剪'),
-                  h('a-select-option', { props: { value: '灌溉' } }, '灌溉'),
-                  h('a-select-option', { props: { value: '病虫害防治' } }, '病虫害防治'),
-                  h('a-select-option', { props: { value: '发芽期' } }, '发芽期'),
-                  h('a-select-option', { props: { value: '生长期' } }, '生长期'),
-                  h('a-select-option', { props: { value: '成熟期' } }, '成熟期')
-                ])
-              ]),
-              h('a-form-model-item', { props: { label: '操作详情/生长状态描述' } }, [
-                h('a-textarea', {
-                  props: {
-                    placeholder: '请输入详细描述',
-                    rows: 3,
-                    value: this.tempContent
-                  },
-                  on: { input: (e) => { this.tempContent = e.target.value } }
-                })
-              ]),
-              h('a-form-model-item', { props: { label: '记录日期' } }, [
-                h('a-date-picker', {
-                  props: {
-                    value: this.tempRecordDate ? moment(this.tempRecordDate) : null,
-                    format: 'YYYY-MM-DD'
-                  },
-                  on: { change: (date, dateString) => { this.tempRecordDate = dateString } }
-                })
-              ])
-            ])
-          ])
-        },
-        onOk: () => {
-          if (!this.tempStage || !this.tempContent || !this.tempRecordDate) {
-            this.$message.error('请填写完整信息')
-            return false
-          }
-          this.growthRecords.push({
-            stage: this.tempStage,
-            content: this.tempContent,
-            recordDate: this.tempRecordDate
-          })
-          this.tempStage = ''
-          this.tempContent = ''
-          this.tempRecordDate = ''
-          this.$message.success('添加成功')
-        }
+    addGrowthRecord() {
+      this.growthRecordVisible = true
+      // 重置临时数据
+      this.tempStage = ''
+      this.tempContent = ''
+      this.tempRecordDate = ''
+    },
+    handleGrowthRecordOk() {
+      if (!this.tempStage || !this.tempContent || !this.tempRecordDate) {
+        this.$message.error('请填写完整信息')
+        return
+      }
+
+      this.growthRecords.push({
+        stage: this.tempStage,
+        content: this.tempContent,
+        recordDate: moment(this.tempRecordDate).format('YYYY-MM-DD')
       })
+
+      this.$message.success('添加成功')
+      this.growthRecordVisible = false
+    },
+
+    handleGrowthRecordCancel() {
+      this.growthRecordVisible = false
     },
     deleteGrowthRecord (index) {
       this.growthRecords.splice(index, 1)

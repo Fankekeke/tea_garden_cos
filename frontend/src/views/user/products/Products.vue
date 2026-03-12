@@ -197,13 +197,7 @@ export default {
       this.loading = true
       this.$get('/cos/tea-products/list').then((r) => {
         console.log(r)
-        if (r.data && r.data.list) {
-          this.productsList = r.data.list
-        } else if (Array.isArray(r.data)) {
-          this.productsList = r.data
-        } else {
-          this.productsList = []
-        }
+        this.productsList = r.data.data
         this.loading = false
       }).catch(() => {
         this.loading = false

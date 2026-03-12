@@ -81,26 +81,26 @@
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.userName }}
+                {{ record.name }}
               </template>
-              {{ record.userName }}
+              {{ record.name }}
             </a-tooltip>
           </template>
         </template>
         <template slot="statusShow" slot-scope="text, record">
-          <a-tag :color="record.status === '0' ? 'orange' : record.status === '1' ? 'green' : 'red'">
+          <a-tag :color="record.status === '待审核' ? 'orange' : record.status === '通过' ? 'green' : 'red'">
             {{ record.status }}
           </a-tag>
         </template>
         <template slot="operation" slot-scope="text, record">
           <a-icon type="setting" theme="twoTone" twoToneColor="#4a9ff5" @click="edit(record)" title="修 改"></a-icon>
-          <a-badge :status="record.status === '0' ? 'processing' : record.status === '1' ? 'success' : 'error'" style="margin-right: 8px;">
+          <a-badge :status="record.status === '待审核' ? 'processing' : record.status === '通过' ? 'success' : 'error'" style="margin-right: 8px;">
             <a-icon
               type="check-circle"
               theme="twoTone"
               twoToneColor="#52c41a"
               @click="audit(record)"
-              title="审核"              style="cursor: pointer;"
+              title="审核" style="cursor: pointer;"
             />
           </a-badge>
         </template>
@@ -132,7 +132,7 @@
         </a-form-model-item>
 
         <a-form-model-item label="茶农姓名">
-          {{ currentRecord.userName }}
+          {{ currentRecord.name }}
         </a-form-model-item>
 
         <a-form-model-item
@@ -190,7 +190,7 @@ export default {
   components: {StoriesAdd, StoriesEdit, RangeDate},
   data () {
     return {
-      dvanced: false,
+      advanced: false,
       storiesAdd: {
         visiable: false
       },
@@ -256,12 +256,12 @@ export default {
         width: 150
       }, {
         title: '茶农姓名',
-        dataIndex: 'userName',
+        dataIndex: 'name',
         scopedSlots: { customRender: 'userNameShow' },
         width: 120
       }, {
         title: '茶农编号',
-        dataIndex: 'userCode',
+        dataIndex: 'code',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -275,7 +275,7 @@ export default {
         dataIndex: 'sex',
         customRender: (text, row, index) => {
           if (text !== null) {
-            return text === '1' ? '男' : '女'
+            return text == '0' ? '男' : '女'
           } else {
             return '- -'
           }

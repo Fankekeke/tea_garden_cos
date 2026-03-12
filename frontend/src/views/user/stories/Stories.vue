@@ -81,15 +81,15 @@
           <template>
             <a-tooltip>
               <template slot="title">
-                {{ record.userName }}
+                {{ record.name }}
               </template>
-              {{ record.userName }}
+              {{ record.name }}
             </a-tooltip>
           </template>
         </template>
         <template slot="statusShow" slot-scope="text, record">
-          <a-tag :color="currentRecord.status === '待审核' ? 'orange' : currentRecord.status === '通过' ? 'green' : 'red'">
-            {{ currentRecord.status}}
+          <a-tag :color="record.status === '待审核' ? 'orange' : record.status === '通过' ? 'green' : 'red'">
+            {{ record.status }}
           </a-tag>
         </template>
         <template slot="operation" slot-scope="text, record">
@@ -124,7 +124,7 @@ export default {
   components: {StoriesAdd, StoriesEdit, RangeDate},
   data () {
     return {
-      dvanced: false,
+      advanced: false,
       storiesAdd: {
         visiable: false
       },
@@ -190,12 +190,12 @@ export default {
         width: 150
       }, {
         title: '茶农姓名',
-        dataIndex: 'userName',
+        dataIndex: 'name',
         scopedSlots: { customRender: 'userNameShow' },
         width: 120
       }, {
         title: '茶农编号',
-        dataIndex: 'userCode',
+        dataIndex: 'code',
         customRender: (text, row, index) => {
           if (text !== null) {
             return text
@@ -209,7 +209,7 @@ export default {
         dataIndex: 'sex',
         customRender: (text, row, index) => {
           if (text !== null) {
-            return text === '1' ? '男' : '女'
+            return text == '0' ? '男' : '女'
           } else {
             return '- -'
           }

@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model="show" title="新增培训课程" @cancel="onClose" :width="800">
+  <a-modal v-model="show" title="新增培训课程" @cancel="onClose" :width="600">
     <template slot="footer">
       <a-button key="back" @click="onClose">
         取消
@@ -10,19 +10,11 @@
     </template>
     <a-form :form="form" layout="vertical">
       <a-row :gutter="20">
-        <a-col :span="12">
+        <a-col :span="24">
           <a-form-item label='培训课程标题' v-bind="formItemLayout">
             <a-input v-decorator="[
             'title',
             { rules: [{ required: true, message: '请输入名称!' }] }
-            ]"/>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item label='上传人' v-bind="formItemLayout">
-            <a-input v-decorator="[
-            'uploader',
-            { rules: [{ required: true, message: '请输入上传人!' }] }
             ]"/>
           </a-form-item>
         </a-col>
@@ -130,7 +122,6 @@ export default {
       this.form.validateFields((err, values) => {
         values.videoUrl = images.length > 0 ? images.join(',') : null
         if (!err) {
-          values.publisher = this.currentUser.userId
           this.loading = true
           this.$post('/cos/trainings', {
             ...values

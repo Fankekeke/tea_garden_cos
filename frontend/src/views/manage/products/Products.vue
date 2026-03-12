@@ -164,16 +164,17 @@ export default {
         },
         width: 150
       }, {
-        title: '图片',
+        title: '图册',
         dataIndex: 'images',
-        customRender: (text, row, index) => {
-          if (text !== null && text !== '') {
-            return '查看图片'
-          } else {
-            return '- -'
-          }
-        },
-        width: 100
+        customRender: (text, record, index) => {
+          if (!record.images) return <a-avatar shape="square" icon="user" />
+          return <a-popover>
+            <template slot="content">
+              <a-avatar shape="square" size={132} icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+            </template>
+            <a-avatar shape="square" icon="user" src={ 'http://127.0.0.1:9527/imagesWeb/' + record.images.split(',')[0] } />
+          </a-popover>
+        }
       }, {
         title: '操作',
         dataIndex: 'operation',
